@@ -17,7 +17,15 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "ac-markdown-editor": [
+        "dist/ac-markdown-editor"
+      ],
+      "ac-markdown-editor/*": [
+        "dist/ac-markdown-editor/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

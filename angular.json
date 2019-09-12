@@ -124,6 +124,41 @@
           }
         }
       }
+    },
+    "ac-markdown-editor": {
+      "projectType": "library",
+      "root": "projects/ac-markdown-editor",
+      "sourceRoot": "projects/ac-markdown-editor/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ac-markdown-editor/tsconfig.lib.json",
+            "project": "projects/ac-markdown-editor/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ac-markdown-editor/src/test.ts",
+            "tsConfig": "projects/ac-markdown-editor/tsconfig.spec.json",
+            "karmaConfig": "projects/ac-markdown-editor/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ac-markdown-editor/tsconfig.lib.json",
+              "projects/ac-markdown-editor/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }},
   "defaultProject": "ngx-markdown-editor2"
 }
