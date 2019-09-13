@@ -2,7 +2,8 @@
   "name": "ac-markdown-editor",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/common": "^8.2.0",
-    "@angular/core": "^8.2.0"
+    "@angular/common": "^8.2.6",
+    "@angular/core": "^8.2.6",
+    "@angular/forms": "^8.2.6"
   }
 }

@@ -15,5 +15,4 @@ export class AcMarkdownEditorComponent implements OnInit {
 
   ngOnInit() {
   }
-
 }
