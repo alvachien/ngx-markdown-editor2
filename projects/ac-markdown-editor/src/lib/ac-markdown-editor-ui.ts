@@ -1,4 +1,5 @@
 import { formatRender, html2md } from './ac-markdown-editor-util';
+import { IACMEditor } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorUi {
   constructor(vditor: IACMEditor) {

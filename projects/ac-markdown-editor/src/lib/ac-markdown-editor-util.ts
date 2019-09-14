@@ -1,4 +1,5 @@
 import { gfm } from './ac-markdown-editor-turndown-gfm';
+import { IACMEditor, webkitAudioContext } from './ac-markdown-editor-interfaces';
 
 // Add style
 export function addStyle(url: string, id: string) {

@@ -1,6 +1,7 @@
 import { code160to32, addStyle } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
-import copySVG from '../../assets/icons/copy.svg';
+import * as copySVG from '../../../../src/assets/icons/copy.svg';
+import { IACMEditor, IACMEI18nLang, IACMEPreviewOptions } from './ac-markdown-editor-interfaces';
 
 // ABCjs
 export async function abcRender(element: (HTMLElement | Document) = document) {

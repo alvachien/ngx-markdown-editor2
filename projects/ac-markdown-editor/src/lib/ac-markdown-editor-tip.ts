@@ -1,3 +1,4 @@
+import { IACMEditor } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorTip {
   public element: HTMLElement;

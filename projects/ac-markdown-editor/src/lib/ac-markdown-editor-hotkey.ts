@@ -2,6 +2,7 @@ import {
   formatRender, getSelectPosition, getText, insertText,
   getCursorPosition, getCurrentLinePosition,
 } from './ac-markdown-editor-util';
+import { IACMEditor, IACMEMenuItem } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorHotkey {
   public hintElement: HTMLElement;

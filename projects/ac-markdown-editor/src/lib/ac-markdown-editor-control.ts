@@ -1,5 +1,6 @@
 import { inputEvent, getText, getSelectText, html2md, insertText, } from './ac-markdown-editor-util';
 import { uploadFiles } from './ac-markdown-editor-upload';
+import { IACMEditor } from './ac-markdown-editor-interfaces';
 
 ///
 /// Control

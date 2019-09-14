@@ -1,3 +1,5 @@
+import { IACMEditor, IACMETurndownRule, IACMETurndown } from './ac-markdown-editor-interfaces';
+
 const rules: { [key: string]: IACMETurndownRule } = {
   vditorDelete: {
     filter: ['del', 's', 'strike'],

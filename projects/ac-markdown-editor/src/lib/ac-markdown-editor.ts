@@ -1,3 +1,4 @@
+import { IACMEditor, IACMEOptions } from './ac-markdown-editor-interfaces';
 import { ACMEditorCounter } from './ac-markdown-editor-counter';
 import { formatRender, getSelectText, getText, html2md,
   insertText, setSelectionByPosition, getCursorPosition, } from './ac-markdown-editor-util';

@@ -1,16 +1,16 @@
 
-interface IACMETurndownRule {
+export interface IACMETurndownRule {
   filter: string | string[] | ((node: HTMLInputElement) => boolean);
 
   replacement(content: string, node?: HTMLElement): string;
 }
 
-interface IACMETurndown {
+export interface IACMETurndown {
   addRule(key: string, rule: IACMETurndownRule): IACMETurndown;
 }
 
 
-interface ILute {
+export interface ILute {
   New(): ILute;
 
   PutEmojis(emojis: { [key: string]: string }): void;
@@ -29,25 +29,25 @@ declare var webkitAudioContext: {
   new(contextOptions?: AudioContextOptions): AudioContext,
 };
 
-interface IACMEHTMLInputEvent extends Event {
+export interface IACMEHTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
 }
 
-interface IACMEI18nLang {
+export interface IACMEI18nLang {
   en_US: string;
   zh_CN: string;
 }
 
-interface IACMEI18n {
+export interface IACMEI18n {
   en_US: { [key: string]: string };
   zh_CN: { [key: string]: string };
 }
 
-interface IACMEClasses {
+export interface IACMEClasses {
   preview?: string;
 }
 
-interface IACMEUpload {
+export interface IACMEUpload {
   url?: string;
   max?: number;
   linkToImgUrl?: string;
@@ -67,7 +67,7 @@ interface IACMEUpload {
   format?(files: File[], responseText: string): string;
 }
 
-interface IACMEMenuItem {
+export interface IACMEMenuItem {
   name: string;
   icon?: string;
   tip?: string;
@@ -79,7 +79,7 @@ interface IACMEMenuItem {
   click?(): void;
 }
 
-interface IACMEToolbarItem {
+export interface IACMEToolbarItem {
   name: string;
   icon?: string;
   tip?: string;
@@ -91,7 +91,7 @@ interface IACMEToolbarItem {
   click?(): void;
 }
 
-interface IACMEPreview {
+export interface IACMEPreview {
   delay?: number;
   maxWidth?: number;
   mode?: string; // "both" | "preview" | "editor"
@@ -104,12 +104,12 @@ interface IACMEPreview {
   parse?(element: HTMLElement): void;
 }
 
-interface IACMEHintData {
+export interface IACMEHintData {
   html: string;
   value: string;
 }
 
-interface IACMEHint {
+export interface IACMEHint {
   emojiTail?: string;
   delay?: number;
   emoji?: { [key: string]: string };
@@ -118,14 +118,14 @@ interface IACMEHint {
   at?(value: string): IACMEHintData[];
 }
 
-interface IACMEResize {
+export interface IACMEResize {
   position?: string;
   enable?: boolean;
 
   after?(height: number): void;
 }
 
-interface IACMEPreviewOptions {
+export interface IACMEPreviewOptions {
   hljsStyle?: string;
   enableHighlight?: boolean;
   customEmoji?: { [key: string]: string };
@@ -133,7 +133,7 @@ interface IACMEPreviewOptions {
   emojiPath?: string;
 }
 
-interface IACMEOptions {
+export interface IACMEOptions {
   keymap?: { [key: string]: string };
   height?: number | string;
   width?: number | string;
@@ -163,7 +163,7 @@ interface IACMEOptions {
   select?(value: string): void;
 }
 
-interface IACMEditor {
+export interface IACMEditor {
   id: string;
   options: IACMEOptions;
   originalInnerHTML: string;

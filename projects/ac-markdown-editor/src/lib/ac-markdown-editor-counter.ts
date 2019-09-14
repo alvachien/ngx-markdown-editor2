@@ -1,3 +1,5 @@
+import { IACMEditor } from './ac-markdown-editor-interfaces';
+
 ///
 /// Counter
 ///

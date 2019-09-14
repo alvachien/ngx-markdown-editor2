@@ -1,3 +1,4 @@
+import { IACMEditor, IACMEOptions, IACMEMenuItem } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorOptions {
   public options: IACMEOptions;

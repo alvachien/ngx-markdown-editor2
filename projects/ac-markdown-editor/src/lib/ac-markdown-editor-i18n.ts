@@ -1,3 +1,5 @@
+import { IACMEditor, IACMEI18n } from './ac-markdown-editor-interfaces';
+
 export const i18n: IACMEI18n = {
   en_US: {
     // tslint:disable-next-line:object-literal-key-quotes

@@ -1,5 +1,6 @@
 import { insertText, setSelectionByInlineText, } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
+import { IACMEditor, IACMEI18nLang } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorUpload {
   public element: HTMLElement;

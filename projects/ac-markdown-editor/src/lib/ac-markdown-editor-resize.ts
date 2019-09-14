@@ -1,4 +1,5 @@
-import resizeSVG from '../../assets/icons/resize.svg';
+import resizeSVG from '../../../../src/assets/icons/resize.svg';
+import { IACMEditor } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorResize {
   public element: HTMLElement;

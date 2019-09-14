@@ -1,5 +1,6 @@
 import * as diff_match_patch from 'diff-match-patch';
 import { formatRender, getSelectPosition, getText } from './ac-markdown-editor-util';
+import { IACMEditor } from './ac-markdown-editor-interfaces';
 
 export class ACMEditorUndo {
   private undoStack: Array<{ patchList: patch_obj[], end: number }>;
