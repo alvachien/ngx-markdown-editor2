@@ -1,5 +1,5 @@
 
-export class ACMEOptions {
+export class ACMEditorOptions {
   public options: IACMEOptions;
   private defaultOptions: IACMEOptions = {
     cache: true,

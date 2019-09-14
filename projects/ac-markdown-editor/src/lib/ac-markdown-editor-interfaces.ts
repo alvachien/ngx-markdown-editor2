@@ -79,6 +79,18 @@ interface IACMEMenuItem {
   click?(): void;
 }
 
+interface IACMEToolbarItem {
+  name: string;
+  icon?: string;
+  tip?: string;
+  hotkey?: string;
+  suffix?: string;
+  prefix?: string;
+  tipPosition?: string;
+
+  click?(): void;
+}
+
 interface IACMEPreview {
   delay?: number;
   maxWidth?: number;

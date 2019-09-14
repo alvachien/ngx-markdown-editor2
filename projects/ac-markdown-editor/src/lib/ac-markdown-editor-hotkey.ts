@@ -3,7 +3,7 @@ import {
   getCursorPosition, getCurrentLinePosition,
 } from './ac-markdown-editor-util';
 
-export class ACMEHotkey {
+export class ACMEditorHotkey {
   public hintElement: HTMLElement;
   public vditor: IACMEditor;
 

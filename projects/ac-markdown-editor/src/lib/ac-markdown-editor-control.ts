@@ -1,7 +1,10 @@
 import { inputEvent, getText, getSelectText, html2md, insertText, } from './ac-markdown-editor-util';
 import { uploadFiles } from './ac-markdown-editor-upload';
 
-export class ACMEEditor {
+///
+/// Control
+///
+export class ACMEditorControl {
   public element: HTMLPreElement;
   public range: Range;
 

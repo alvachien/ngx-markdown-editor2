@@ -1,6 +1,6 @@
 import { getText, getSelectPosition, formatRender, code160to32, getCursorPosition, selectIsEditor } from './ac-markdown-editor-util';
 
-export class ACMEHint {
+export class ACMEditorHint {
   public timeId: number;
   public vditor: IACMEditor;
   public element: HTMLUListElement;

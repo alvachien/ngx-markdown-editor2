@@ -1,7 +1,7 @@
 import { insertText, setSelectionByInlineText, } from './ac-markdown-editor-util';
 import { i18n } from './ac-markdown-editor-i18n';
 
-export class ACMEUpload {
+export class ACMEditorUpload {
   public element: HTMLElement;
   public isUploading: boolean;
 

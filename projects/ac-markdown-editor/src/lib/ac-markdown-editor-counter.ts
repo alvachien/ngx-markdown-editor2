@@ -1,21 +1,23 @@
+///
+/// Counter
+///
+export class ACMEditorCounter {
+  public element: HTMLElement;
 
-export class AcMarkdownEditorCounter {
-    public element: HTMLElement;
+  constructor(vditor: IACMEditor) {
+    this.element = document.createElement('div');
+    this.element.className = 'acme-counter';
 
-    constructor(vditor: IACMEditor) {
-        this.element = document.createElement('div');
-        this.element.className = 'acme-counter';
+    this.render(0, vditor.options.counter);
 
-        this.render(0, vditor.options.counter);
+  }
 
+  public render(length: number, counter: number) {
+    if (length > counter) {
+      this.element.className = 'acme-counter acme-counter--error';
+    } else {
+      this.element.className = 'acme-counter';
     }
-
-    public render(length: number, counter: number) {
-        if (length > counter) {
-            this.element.className = 'acme-counter acme-counter--error';
-        } else {
-            this.element.className = 'acme-counter';
-        }
-        this.element.innerHTML = `${length}/${counter}`;
-    }
+    this.element.innerHTML = `${length}/${counter}`;
+  }
 }
