@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { AcMarkdownEditorModule } from 'ac-markdown-editor';
+import { AcMarkdownEditorModule } from '../../projects/ac-markdown-editor/src/public-api';
 import { AppComponent } from './app.component';
 
 @NgModule({

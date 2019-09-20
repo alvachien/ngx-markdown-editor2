@@ -135,64 +135,112 @@ export class EditorToolbarImage extends EditorToolbarItem {
   }
 }
 
-
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'ac-markdown-editor',
-  template: `
-    <div #acmarkeditor>
-    </div>
-  `,
-  styles: []
+  templateUrl: './ac-markdown-editor.component.html',
+  styleUrls: ['./ac-markdown-editor.component.scss'],
 })
 export class AcMarkdownEditorComponent implements OnInit {
   @ViewChild('acmarkeditor', {static: false}) editor: ElementRef;
+  private contentElement: HTMLElement;
+  private toolbarElement: HTMLElement;
 
   constructor() { }
 
   ngOnInit() {
-    // Toolbar
-    const toolbar = document.createElement('div');
-    toolbar.className = classes.toolbar;
-    this.editor.nativeElement.appendChild(toolbar);
-    // toolbar.appendChild(this.editor.nativeElement, toolbar);
+    // // Toolbar
+    // this.toolbarElement = document.createElement('div');
+    // this.toolbarElement.className = 'acme-toolbar';
+    // this.editor.nativeElement.appendChild(this.toolbarElement);
 
-    // const content = document.createElement('div');
-    // content.contentEditable = true;
-    // content.className = classes.content;
-    // content.oninput = ({ target: { firstChild } }) => {
-    //   if (firstChild && firstChild.nodeType === 3) exec(formatBlock, `<${defaultParagraphSeparator}>`)
-    //   else if (content.innerHTML === '<br>') content.innerHTML = ''
-    //   settings.onChange(content.innerHTML);
-    // }
-    // content.onkeydown = event => {
-    //   if (event.key === 'Enter' && queryCommandValue(formatBlock) === 'blockquote') {
-    //     setTimeout(() => exec(formatBlock, `<${defaultParagraphSeparator}>`), 0)
+    // this.contentElement = document.createElement('div');
+    // this.contentElement.contentEditable = 'true';
+    // this.contentElement.className = 'acme-content';
+    // this.contentElement.oninput = (ev) => {
+    //   const targetelem = ev.target;
+    //   if (targetelem.firstChild && targetelem.firstChild.nodeType === 3) {
+    //     // exec(formatBlock, `<${defaultParagraphSeparator}>`)
+    //   } else if (this.contentElement.innerHTML === '<br>') {
+    //     this.contentElement.innerHTML = '';
     //   }
     // };
-    // appendChild(settings.element, content)
-  
-    // actions.forEach(action => {
-    //   const button = createElement('button')
-    //   button.className = classes.button
-    //   button.innerHTML = action.icon
-    //   button.title = action.title
-    //   button.setAttribute('type', 'button')
-    //   button.onclick = () => action.result() && content.focus()
-  
-    //   if (action.state) {
-    //     const handler = () => button.classList[action.state() ? 'add' : 'remove'](classes.selected)
-    //     addEventListener(content, 'keyup', handler)
-    //     addEventListener(content, 'mouseup', handler)
-    //     addEventListener(button, 'click', handler)
+    // this.editor.nativeElement.appendChild(this.contentElement);
+
+    // const toolbarItems: string[] = ['bold', 'italic'];
+    // toolbarItems.forEach((item: string) => {
+    //   const button = document.createElement('button');
+    //   button.className = 'acme-button';
+    //   switch (item) {
+    //     case 'bold':
+    //       const tbib: EditorToolbarBold = new EditorToolbarBold();
+    //       button.title = tbib.title;
+    //       button.innerHTML = tbib.icon ;
+    //       button.setAttribute('type', 'button');
+    //       button.onclick = () => { tbib.result(); this.contentElement.focus(); };
+    //       break;
+    //     case 'italic':
+    //       const tbii: EditorToolbarItalic = new EditorToolbarItalic();
+    //       button.title = tbii.title;
+    //       button.innerHTML = tbii.icon ;
+    //       button.setAttribute('type', 'button');
+    //       button.onclick = () => { tbii.result(); this.contentElement.focus(); };
+    //       break;
+
+    //     default:
+    //       break;
     //   }
-  
-    //   appendChild(actionbar, button)
-    // })
-  
-    // if (settings.styleWithCSS) exec('styleWithCSS')
-    // exec(defaultParagraphSeparatorString, defaultParagraphSeparator)
-  
-    // return settings.element   
+    //   this.toolbarElement.appendChild(button);
+
+    //   //   if (action.state) {
+    //   //     const handler = () => button.classList[action.state() ? 'add' : 'remove'](classes.selected)
+    //   //     addEventListener(content, 'keyup', handler)
+    //   //     addEventListener(content, 'mouseup', handler)
+    //   //     addEventListener(button, 'click', handler)
+    //   //   }
+
+    //   //   appendChild(actionbar, button)
+    // });
+
+    // // content.oninput = ({ target: { firstChild } }) => {
+    // //   if (firstChild && firstChild.nodeType === 3) exec(formatBlock, `<${defaultParagraphSeparator}>`)
+    // //   else if (content.innerHTML === '<br>') content.innerHTML = ''
+    // //   settings.onChange(content.innerHTML);
+    // // }
+    // // content.onkeydown = event => {
+    // //   if (event.key === 'Enter' && queryCommandValue(formatBlock) === 'blockquote') {
+    // //     setTimeout(() => exec(formatBlock, `<${defaultParagraphSeparator}>`), 0)
+    // //   }
+    // // };
+
+    // // actions.forEach(action => {
+    // //   const button = createElement('button')
+    // //   button.className = classes.button
+    // //   button.innerHTML = action.icon
+    // //   button.title = action.title
+    // //   button.setAttribute('type', 'button')
+    // //   button.onclick = () => action.result() && content.focus()
+
+    // //   if (action.state) {
+    // //     const handler = () => button.classList[action.state() ? 'add' : 'remove'](classes.selected)
+    // //     addEventListener(content, 'keyup', handler)
+    // //     addEventListener(content, 'mouseup', handler)
+    // //     addEventListener(button, 'click', handler)
+    // //   }
+
+    // //   appendChild(actionbar, button)
+    // // })
+
+    // // if (settings.styleWithCSS) exec('styleWithCSS')
+    // // exec(defaultParagraphSeparatorString, defaultParagraphSeparator)
+
+    // // return settings.element
+  }
+
+  onToolbarBold(): void {
+    document.execCommand('bold', false);
+  }
+  onToolbarItalic(): void {
+    document.execCommand('italic', false);
   }
 }
