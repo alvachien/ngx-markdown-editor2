@@ -74,9 +74,23 @@
       class="acme-toolbar-button">
       &#128279;
     </button>
+    <button title="Math" *ngIf="isToolbarItemExist('math')"
+      (click)="onToolbarButtonClick($event, 'math')"
+      class="acme-toolbar-button">
+      M
+    </button>
   </div>
   <div class="acme-content" #aceditor_content contenteditable="true" 
     (keydown)="onContentKeyDown($event)"
     (input)="onContentInput($event)">
+  </div>
+</div>
+<div class="acme-dialog-math" [class.acme-dialog-open]="isDialogMathOpen" #acme_math> 
+  <div class="acme-dialog-content">        
+    <div class="acme-dialog-math-header" contenteditable="true" [(ngModel)]="mathDialogInput" (input)="onMathInput()"></div>
+    <div class="acme-dialog-math-preview katex" #acme_math_preview>      
+    </div>
+    <hr>
+    <button (click)="onMathDialogClose">Close</button>
   </div>
 </div>

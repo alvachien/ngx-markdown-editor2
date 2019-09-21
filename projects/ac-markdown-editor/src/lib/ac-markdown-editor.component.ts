@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, OnDestroy, forwardRef, HostListener } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NG_VALIDATORS, FormGroup, FormControl,
   Validator, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+// import from 'katex';
 
 // Constants for commands
 const commandFormatBlock = 'formatBlock';
@@ -22,7 +23,8 @@ export enum EditorToolbarButtonEnum {
   code = 'code',
   horizontalline = 'horizontalline',
   link = 'link',
-  image = 'image'
+  image = 'image',
+  math = 'math'
 }
 
 // Config for editor
@@ -53,6 +55,8 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
   @ViewChild('aceditor_toolbar', {static: true}) erToolbar: ElementRef;
   @ViewChild('aceditor_content', {static: true}) erContent: ElementRef;
   @Input() config: IEditorConfig;
+  isDialogMathOpen = false;
+  mathDialogInput: string;
   // tslint:disable-next-line:variable-name
   private _onChange: (val: any) => void;
   // tslint:disable-next-line:variable-name
@@ -74,6 +78,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     EditorToolbarButtonEnum.horizontalline,
     EditorToolbarButtonEnum.link,
     EditorToolbarButtonEnum.image,
+    EditorToolbarButtonEnum.math,
   ];
   toolbarItems: EditorToolbarButtonEnum[] = [];
   paragraphSeparator = 'div';
@@ -222,6 +227,10 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
         // TBD.
         this.erContent.nativeElement.focus();
         break;
+      case EditorToolbarButtonEnum.math:
+        this.isDialogMathOpen = true;
+        this.erContent.nativeElement.focus();
+        break;
 
       default:
         break;
@@ -242,5 +251,8 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     } else if (this.erContent.nativeElement.innerHTML === '<br>') {
       this.erContent.nativeElement.innerHTML = '';
     }
+  }
+  onMathDialogClose(): void {
+    this.isDialogMathOpen = false;
   }
 }

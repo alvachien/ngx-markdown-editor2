@@ -22,6 +22,7 @@ export class AppComponent {
       // EditorToolbarButtonEnum.orderedlist,
       // EditorToolbarButtonEnum.unorderedlist,
       EditorToolbarButtonEnum.code,
+      EditorToolbarButtonEnum.math,
     ]
   };
 }
