@@ -2,9 +2,9 @@ $acme-toolbar-color: #FFF !default;
 $acme-border-color: rgba(10, 10, 10, 0.1) !default;
 $acme-border-style: solid !default;
 $acme-border-width: 1px !default;
-$acme-button-height: 30px !default;
-$acme-button-selected-color: #F0F0F0 !default;
-$acme-button-width: 30px !default;
+$acme-toolbar-button-height: 30px !default;
+$acme-toolbar-button-selected-color: rgb(102, 102, 102, 0.5) !default;
+$acme-toolbar-button-width: 30px !default;
 $acme-content-height: 300px !default;
 $acme-content-padding: 10px !default;
 
@@ -26,16 +26,16 @@ $acme-content-padding: 10px !default;
   border-bottom: $acme-border-width $acme-border-style $acme-border-color;
 }
 
-.acme-button {
+.acme-toolbar-button {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  height: $acme-button-height;
+  height: $acme-toolbar-button-height;
   outline: 0;
-  width: $acme-button-width;
+  width: $acme-toolbar-button-width;
   vertical-align: bottom;
 }
 
-.acme-button-selected {
-  background-color: $acme-button-selected-color;
+.acme-toolbar-button-selected {
+  background-color: $acme-toolbar-button-selected-color;
 }

@@ -1,138 +1,34 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, OnDestroy, forwardRef, HostListener } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, NG_VALIDATORS, FormGroup, FormControl,
+  Validator, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 
-export interface IEditorToolbarItem {
-  command: string;
-  icon: string;
-  title: string;
-  state: () => boolean;
-  result: () => void;
+// Constants for commands
+const commandFormatBlock = 'formatBlock';
+const commandParagraphSeparator = 'defaultParagraphSeparator';
+
+// Enum for toolbar buttons
+export enum EditorToolbarButtonEnum {
+  bold = 'bold',
+  italic = 'italic',
+  underline = 'underline',
+  strikethrough = 'strikethrough',
+  heading1 = 'heading1',
+  heading2 = 'heading2',
+  heading3 = 'heading3',
+  paragraph = 'paragraph',
+  quote = 'quote',
+  orderedlist = 'orderedlist',
+  unorderedlist = 'unorderedlist',
+  code = 'code',
+  horizontalline = 'horizontalline',
+  link = 'link',
+  image = 'image'
 }
 
-export abstract class EditorToolbarItem implements IEditorToolbarItem {
-  command: string;
-  icon: string;
-  title: string;
-  state = () => {
-    if (this.command) {
-      return document.queryCommandState(this.command);
-    }
-
-    return false;
-  }
-  result = (value?: any) => {
-    if (this.command) {
-      document.execCommand(this.command, false, value);
-    }
-  }
-}
-
-export class EditorToolbarBold extends EditorToolbarItem {
-  command = 'bold';
-  icon = '<b>B</b>';
-  title = 'Bold';
-}
-export class EditorToolbarItalic extends EditorToolbarItem {
-  command = 'italic';
-  icon = '<i>I</i>';
-  title = 'Italic';
-}
-export class EditorToolbarUnderline extends EditorToolbarItem {
-  command = 'underline';
-  icon = '<u>U</u>';
-  title = 'Underline';
-}
-export class EditorToolbarStrikeThrough extends EditorToolbarItem {
-  command = 'strikeThrough';
-  icon = '<strike>S</strike>';
-  title = 'Strike-through';
-}
-export class EditorToolbarHeading1 extends EditorToolbarItem {
-  command = 'formatBlock';
-  icon = '<b>H<sub>1</sub></b>';
-  title = 'Heading 1';
-  result = () => {
-    super.result('<h1>');
-  }
-}
-export class EditorToolbarHeading2 extends EditorToolbarItem {
-  command = 'formatBlock';
-  icon = '<b>H<sub>2</sub></b>';
-  title = 'Heading 2';
-  result = () => {
-    super.result('<h2>');
-  }
-}
-export class EditorToolbarHeading3 extends EditorToolbarItem {
-  command = 'formatBlock';
-  icon = '<b>H<sub>3</sub></b>';
-  title = 'Heading 3';
-  result = () => {
-    super.result('<h3>');
-  }
-}
-export class EditorToolbarParagraph extends EditorToolbarItem {
-  command = 'formatBlock';
-  icon = '&#182;';
-  title = 'Paragraph';
-  result = () => {
-    super.result('<p>');
-  }
-}
-export class EditorToolbarQuote extends EditorToolbarItem {
-  command = 'formatBlock';
-  icon = '&#8220; &#8221';
-  title = 'Quote';
-  result = () => {
-    super.result('<blockquote>');
-  }
-}
-export class EditorToolbarOrderedList extends EditorToolbarItem {
-  command = 'insertOrderedList';
-  icon = '&#35;';
-  title = 'Ordered List';
-}
-export class EditorToolbarUnorderedList extends EditorToolbarItem {
-  command = 'insertUnorderedList';
-  icon = '&#8226;';
-  title = 'Unordered List';
-  result = () => {
-    document.execCommand(this.command);
-  }
-}
-export class EditorToolbarCode extends EditorToolbarItem {
-  command = 'formatBlock';
-  icon = '&lt;/&gt;';
-  title = 'Code';
-  result = () => {
-    super.result('<pre>');
-  }
-}
-export class EditorToolbarHorizontalLine extends EditorToolbarItem {
-  command = 'insertHorizontalRule';
-  icon = '&#8213;';
-  title = 'Horizontal Line';
-}
-export class EditorToolbarLink extends EditorToolbarItem {
-  command = 'createLink';
-  icon = '&#128279;';
-  title = 'Link';
-  result = () => {
-    const url = window.prompt('Enter the link URL');
-    if (url) {
-      document.execCommand(this.command, false, url);
-    }
-  }
-}
-export class EditorToolbarImage extends EditorToolbarItem {
-  command = 'insertImage';
-  icon = '&#128247;';
-  title = 'Imange';
-  result = () => {
-    const url = window.prompt('Enter the image URL');
-    if (url) {
-      document.execCommand(this.command, false, url);
-    }
-  }
+// Config for editor
+export interface IEditorConfig {
+  toolbarItems?: EditorToolbarButtonEnum[];
+  paragraphSeparator?: string;
 }
 
 @Component({
@@ -140,107 +36,211 @@ export class EditorToolbarImage extends EditorToolbarItem {
   selector: 'ac-markdown-editor',
   templateUrl: './ac-markdown-editor.component.html',
   styleUrls: ['./ac-markdown-editor.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => AcMarkdownEditorComponent),
+      multi: true,
+    }, {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => AcMarkdownEditorComponent),
+      multi: true,
+    },
+  ],
 })
-export class AcMarkdownEditorComponent implements OnInit {
-  @ViewChild('acmarkeditor', {static: false}) editor: ElementRef;
-  private contentElement: HTMLElement;
-  private toolbarElement: HTMLElement;
+export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValueAccessor {
+  @ViewChild('aceditor', {static: true}) erWrapper: ElementRef;
+  @ViewChild('aceditor_toolbar', {static: true}) erToolbar: ElementRef;
+  @ViewChild('aceditor_content', {static: true}) erContent: ElementRef;
+  @Input() config: IEditorConfig;
+  // tslint:disable-next-line:variable-name
+  private _onChange: (val: any) => void;
+  // tslint:disable-next-line:variable-name
+  private _onTouched: () => void;
 
-  constructor() { }
+  defaultToolbarItems: EditorToolbarButtonEnum[] = [
+    EditorToolbarButtonEnum.bold,
+    EditorToolbarButtonEnum.italic,
+    EditorToolbarButtonEnum.underline,
+    EditorToolbarButtonEnum.strikethrough,
+    EditorToolbarButtonEnum.heading1,
+    EditorToolbarButtonEnum.heading2,
+    EditorToolbarButtonEnum.heading3,
+    EditorToolbarButtonEnum.paragraph,
+    EditorToolbarButtonEnum.quote,
+    EditorToolbarButtonEnum.orderedlist,
+    EditorToolbarButtonEnum.unorderedlist,
+    EditorToolbarButtonEnum.code,
+    EditorToolbarButtonEnum.horizontalline,
+    EditorToolbarButtonEnum.link,
+    EditorToolbarButtonEnum.image,
+  ];
+  toolbarItems: EditorToolbarButtonEnum[] = [];
+  paragraphSeparator = 'div';
+
+  @HostListener('change') onChange(): void {
+    if (this._onChange) {
+      this._onChange(this.erContent.nativeElement.innerHTML);
+    }
+  }
+  @HostListener('blur') onTouched(): void {
+    if (this._onTouched) {
+      this._onTouched();
+    }
+  }
+
+  public isToolbarItemExist(item: string): boolean {
+    return this.toolbarItems.some((searchElement: EditorToolbarButtonEnum) => {
+      return searchElement === (item as EditorToolbarButtonEnum);
+    });
+  }
+
+  public isToolbarButtonStatus(item: string): boolean {
+    const btn = item as EditorToolbarButtonEnum;
+    let rst = false;
+    switch (btn) {
+      case EditorToolbarButtonEnum.bold:
+        rst = document.queryCommandState('bold');
+        break;
+      case EditorToolbarButtonEnum.italic:
+        rst = document.queryCommandState('italic');
+        break;
+      case EditorToolbarButtonEnum.underline:
+        rst = document.queryCommandState('underline');
+        break;
+      case EditorToolbarButtonEnum.strikethrough:
+        rst = document.queryCommandState('strikeThrough');
+        break;
+
+      default:
+        break;
+    }
+
+    return rst;
+  }
+
+  constructor() {
+    // Empty
+  }
 
   ngOnInit() {
-    // // Toolbar
-    // this.toolbarElement = document.createElement('div');
-    // this.toolbarElement.className = 'acme-toolbar';
-    // this.editor.nativeElement.appendChild(this.toolbarElement);
-
-    // this.contentElement = document.createElement('div');
-    // this.contentElement.contentEditable = 'true';
-    // this.contentElement.className = 'acme-content';
-    // this.contentElement.oninput = (ev) => {
-    //   const targetelem = ev.target;
-    //   if (targetelem.firstChild && targetelem.firstChild.nodeType === 3) {
-    //     // exec(formatBlock, `<${defaultParagraphSeparator}>`)
-    //   } else if (this.contentElement.innerHTML === '<br>') {
-    //     this.contentElement.innerHTML = '';
-    //   }
-    // };
-    // this.editor.nativeElement.appendChild(this.contentElement);
-
-    // const toolbarItems: string[] = ['bold', 'italic'];
-    // toolbarItems.forEach((item: string) => {
-    //   const button = document.createElement('button');
-    //   button.className = 'acme-button';
-    //   switch (item) {
-    //     case 'bold':
-    //       const tbib: EditorToolbarBold = new EditorToolbarBold();
-    //       button.title = tbib.title;
-    //       button.innerHTML = tbib.icon ;
-    //       button.setAttribute('type', 'button');
-    //       button.onclick = () => { tbib.result(); this.contentElement.focus(); };
-    //       break;
-    //     case 'italic':
-    //       const tbii: EditorToolbarItalic = new EditorToolbarItalic();
-    //       button.title = tbii.title;
-    //       button.innerHTML = tbii.icon ;
-    //       button.setAttribute('type', 'button');
-    //       button.onclick = () => { tbii.result(); this.contentElement.focus(); };
-    //       break;
-
-    //     default:
-    //       break;
-    //   }
-    //   this.toolbarElement.appendChild(button);
-
-    //   //   if (action.state) {
-    //   //     const handler = () => button.classList[action.state() ? 'add' : 'remove'](classes.selected)
-    //   //     addEventListener(content, 'keyup', handler)
-    //   //     addEventListener(content, 'mouseup', handler)
-    //   //     addEventListener(button, 'click', handler)
-    //   //   }
-
-    //   //   appendChild(actionbar, button)
-    // });
-
-    // // content.oninput = ({ target: { firstChild } }) => {
-    // //   if (firstChild && firstChild.nodeType === 3) exec(formatBlock, `<${defaultParagraphSeparator}>`)
-    // //   else if (content.innerHTML === '<br>') content.innerHTML = ''
-    // //   settings.onChange(content.innerHTML);
-    // // }
-    // // content.onkeydown = event => {
-    // //   if (event.key === 'Enter' && queryCommandValue(formatBlock) === 'blockquote') {
-    // //     setTimeout(() => exec(formatBlock, `<${defaultParagraphSeparator}>`), 0)
-    // //   }
-    // // };
-
-    // // actions.forEach(action => {
-    // //   const button = createElement('button')
-    // //   button.className = classes.button
-    // //   button.innerHTML = action.icon
-    // //   button.title = action.title
-    // //   button.setAttribute('type', 'button')
-    // //   button.onclick = () => action.result() && content.focus()
-
-    // //   if (action.state) {
-    // //     const handler = () => button.classList[action.state() ? 'add' : 'remove'](classes.selected)
-    // //     addEventListener(content, 'keyup', handler)
-    // //     addEventListener(content, 'mouseup', handler)
-    // //     addEventListener(button, 'click', handler)
-    // //   }
-
-    // //   appendChild(actionbar, button)
-    // // })
-
-    // // if (settings.styleWithCSS) exec('styleWithCSS')
-    // // exec(defaultParagraphSeparatorString, defaultParagraphSeparator)
-
-    // // return settings.element
+    this.toolbarItems = [];
+    if (this.config && this.config.toolbarItems) {
+      this.config.toolbarItems.forEach((value: EditorToolbarButtonEnum) => {
+        this.toolbarItems.push(value);
+      });
+    } else {
+      this.toolbarItems.push(...this.defaultToolbarItems);
+    }
+    if (this.config  && this.config.paragraphSeparator) {
+      this.paragraphSeparator = this.config.paragraphSeparator;
+    }
+    document.execCommand(commandParagraphSeparator, false, this.paragraphSeparator);
+  }
+  ngOnDestroy() {
+    this.toolbarItems = [];
+    this.paragraphSeparator = 'div';
   }
 
-  onToolbarBold(): void {
-    document.execCommand('bold', false);
+  writeValue(val: any): void {
+    this.erContent.nativeElement.innerHTML = val as string;
   }
-  onToolbarItalic(): void {
-    document.execCommand('italic', false);
+  registerOnChange(fn: any): void {
+    this._onChange = fn;
+  }
+  registerOnTouched(fn: any): void {
+    this._onTouched = fn;
+  }
+  setDisabledState?(isDisabled: boolean): void {
+    if (isDisabled) {
+      this.erWrapper.nativeElement.disable = true;
+    } else {
+      this.erWrapper.nativeElement.disable = true;
+    }
+  }
+
+  onToolbarButtonClick(event: MouseEvent, btn: string): void {
+    const titem: EditorToolbarButtonEnum = btn as EditorToolbarButtonEnum;
+    switch (titem) {
+      case EditorToolbarButtonEnum.bold:
+        document.execCommand('bold', false);
+        this.erContent.nativeElement.focus();
+        break;
+
+      case EditorToolbarButtonEnum.italic:
+        document.execCommand('italic', false);
+        this.erContent.nativeElement.focus();
+        break;
+
+      case EditorToolbarButtonEnum.underline:
+        document.execCommand('underline', false);
+        this.erContent.nativeElement.focus();
+        break;
+
+      case EditorToolbarButtonEnum.strikethrough:
+        document.execCommand('strikeThrough', false);
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.heading1:
+        document.execCommand(commandFormatBlock, false, '<h1>');
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.heading2:
+        document.execCommand(commandFormatBlock, false, '<h2>');
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.heading3:
+        document.execCommand(commandFormatBlock, false, '<h3>');
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.paragraph:
+        document.execCommand(commandFormatBlock, false, '<p>');
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.quote:
+        document.execCommand(commandFormatBlock, false, '<blockquote>');
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.orderedlist:
+        document.execCommand('insertOrderedList', false);
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.unorderedlist:
+        document.execCommand('insertUnorderedList', false);
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.code:
+        document.execCommand(commandFormatBlock, false, '<pre>');
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.horizontalline:
+        document.execCommand('insertHorizontalRule', false);
+        this.erContent.nativeElement.focus();
+        break;
+      case EditorToolbarButtonEnum.link:
+      case EditorToolbarButtonEnum.image:
+        // TBD.
+        this.erContent.nativeElement.focus();
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  onContentKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && document.queryCommandValue(commandFormatBlock) === 'blockquote') {
+      setTimeout(() => {
+        document.execCommand(commandFormatBlock, false, `${this.paragraphSeparator}`);
+      }, 0);
+    }
+  }
+  onContentInput(event): void {
+    const targetElement: HTMLDivElement = event.target as HTMLDivElement;
+    if (targetElement && targetElement.firstChild && targetElement.firstChild.nodeType === 3) {
+      document.execCommand(commandFormatBlock, false, `${this.paragraphSeparator}`);
+    } else if (this.erContent.nativeElement.innerHTML === '<br>') {
+      this.erContent.nativeElement.innerHTML = '';
+    }
   }
 }
