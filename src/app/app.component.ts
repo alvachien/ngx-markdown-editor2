@@ -8,6 +8,8 @@ import { EditorToolbarButtonEnum, IEditorConfig } from '../../projects/ac-markdo
 })
 export class AppComponent {
   title = 'ngx-markdown-editor2';
+  inputtedContent: string;
+  contentFromChangedEvent: string;
   editorConfig: IEditorConfig = {
     toolbarItems: [
       EditorToolbarButtonEnum.bold,
@@ -23,6 +25,16 @@ export class AppComponent {
       // EditorToolbarButtonEnum.unorderedlist,
       EditorToolbarButtonEnum.code,
       EditorToolbarButtonEnum.math,
-    ]
+    ],
+    paragraphSeparator: 'div'
   };
+
+  constructor() {
+    this.inputtedContent = '';
+    this.contentFromChangedEvent = '';
+  }
+
+  onContentChanged(cont) {
+    this.contentFromChangedEvent = cont;
+  }
 }

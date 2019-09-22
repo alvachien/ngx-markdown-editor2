@@ -1,4 +1,13 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<ac-markdown-editor [config]="editorConfig">
-</ac-markdown-editor>
+<form>
+  <ac-markdown-editor [config]="editorConfig" [(ngModel)]="inputtedContent" name="aceditor" (contentChanged)="onContentChanged($event)">
+  </ac-markdown-editor>
 
+  <hr>
+  <div>
+    {{inputtedContent}}
+  </div>
+  <hr>
+  <textarea readonly [value]="contentFromChangedEvent">
+  </textarea>
+</form>

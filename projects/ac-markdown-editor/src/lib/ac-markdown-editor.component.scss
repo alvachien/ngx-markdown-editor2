@@ -59,7 +59,7 @@ $acme-content-padding: 10px !default;
 
 .acme-dialog-content {
   width: 600px;
-  height: 400px;
+  height: 500px;
   margin: 20px auto;
   background-color: #fff;
   border: 1px solid #000;
@@ -67,9 +67,9 @@ $acme-content-padding: 10px !default;
   text-align: center;
 }
 
-.acme-dialog-math-header {
+.acme_math_input {
   height: 200px;  
 }
-.acme-dialog-math-preview {
+.acme_math_preview {
   height: 200px;  
 }

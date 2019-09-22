@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, OnDestroy, forwardRef, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, OnDestroy, forwardRef, HostListener, Output, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NG_VALIDATORS, FormGroup, FormControl,
   Validator, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-// import from 'katex';
+import * as katex from 'katex';
 
 // Constants for commands
 const commandFormatBlock = 'formatBlock';
@@ -50,11 +50,13 @@ export interface IEditorConfig {
     },
   ],
 })
-export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValueAccessor {
+export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValueAccessor, Validator {
   @ViewChild('aceditor', {static: true}) erWrapper: ElementRef;
   @ViewChild('aceditor_toolbar', {static: true}) erToolbar: ElementRef;
   @ViewChild('aceditor_content', {static: true}) erContent: ElementRef;
   @Input() config: IEditorConfig;
+  @Output() contentChanged: EventEmitter<string> = new EventEmitter();
+
   isDialogMathOpen = false;
   mathDialogInput: string;
   // tslint:disable-next-line:variable-name
@@ -83,16 +85,16 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
   toolbarItems: EditorToolbarButtonEnum[] = [];
   paragraphSeparator = 'div';
 
-  @HostListener('change') onChange(): void {
-    if (this._onChange) {
-      this._onChange(this.erContent.nativeElement.innerHTML);
-    }
-  }
-  @HostListener('blur') onTouched(): void {
-    if (this._onTouched) {
-      this._onTouched();
-    }
-  }
+  // @HostListener('change') onChange(): void {
+  //   if (this._onChange) {
+  //     this._onChange(this.erContent.nativeElement.innerHTML);
+  //   }
+  // }
+  // @HostListener('blur') onTouched(): void {
+  //   if (this._onTouched) {
+  //     this._onTouched();
+  //   }
+  // }
 
   public isToolbarItemExist(item: string): boolean {
     return this.toolbarItems.some((searchElement: EditorToolbarButtonEnum) => {
@@ -251,8 +253,39 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     } else if (this.erContent.nativeElement.innerHTML === '<br>') {
       this.erContent.nativeElement.innerHTML = '';
     }
+
+    this.contentChanged.emit(this.erContent.nativeElement.innerText);
+  }
+
+  // Math dialog
+  onMathDialogInput(event): void {
+    // Math dialog
+    if (event) {
+      const dialogelem: HTMLElement = document.getElementById('acme_math_dialog');
+      const inputelem = dialogelem.getElementsByClassName('acme_math_input')[0] as HTMLDivElement;
+      const previewelem = dialogelem.getElementsByClassName('acme_math_preview')[0] as HTMLDivElement;
+      if (inputelem.innerText) {
+        // const orginput = '$$' + inputelem.innerText + '$$';
+        const orginput = inputelem.innerText;
+        katex.render(orginput, previewelem);
+      }
+    }
   }
   onMathDialogClose(): void {
+    const dialogelem: HTMLElement = document.getElementById('acme_math_dialog');
+    const inputelem = dialogelem.getElementsByClassName('acme_math_input')[0] as HTMLDivElement;
+    if (inputelem.innerText) {
+      const newelem: HTMLElement = document.createElement(this.paragraphSeparator);
+      katex.render(inputelem.innerText, newelem);
+      this.erContent.nativeElement.appendChild(newelem);
+    }
+
     this.isDialogMathOpen = false;
+  }
+  validate(control: AbstractControl): ValidationErrors | null {
+    return null;
+  }
+  registerOnValidatorChange?(fn: () => void): void {
+    // throw new Error("Method not implemented.");
   }
 }
