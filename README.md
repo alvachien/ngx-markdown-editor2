@@ -1,27 +1,19 @@
 # NgxMarkdownEditor2
+Another Markdown editor for Angular.
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.2.0.
+# Why
+It's hardly to find a suitable Markdown based editor which supports Math and can be used in Angular world.
+The last chance here is, write a new one.
 
-## Development server
+# Credits
+The project learning a lot from the following projects:
+- Editor.md [Link](https://github.com/pandao/editor.md). It is a jQuery based implementation of Markdown editor.
+- Vditor [Link](https://github.com/b3log/vditor). Though it is written by Typescript, it depends onn its own CDN and more like a product than a reusable component. Besides, it have heavy dependence with its own Markdown engine.
+- NgxMarkdownEditor [Link](https://github.com/lon-yang/ngx-markdown-editor). It relys on ACE, and it don't support Math. 
+- Pell [Link](https://github.com/jaredreich/pell). Though it isn't a markdown editor, it's idea behind is quite useful. 
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+# Author
+Alva Chien (Hongjun Qian)
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+# Licence
+MIT

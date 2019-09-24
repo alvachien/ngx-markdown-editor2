@@ -51,9 +51,12 @@ export interface IEditorConfig {
   ],
 })
 export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValueAccessor, Validator {
-  @ViewChild('aceditor', {static: true}) erWrapper: ElementRef;
-  @ViewChild('aceditor_toolbar', {static: true}) erToolbar: ElementRef;
-  @ViewChild('aceditor_content', {static: true}) erContent: ElementRef;
+  @ViewChild('acme_wrapper', {static: true}) erWrapper: ElementRef;
+  @ViewChild('acme_toolbar', {static: true}) erToolbar: ElementRef;
+  // @ViewChild('acme_content', {static: true}) erContent: ElementRef;
+  @ViewChild('acme_content_editor', {static: true}) erContentEditor: ElementRef;
+  @ViewChild('acme_content_splitter', {static: true}) erContentSplitter: ElementRef;
+  @ViewChild('acme_content_preview', {static: true}) erContentPreview: ElementRef;
   @Input() config: IEditorConfig;
   @Output() contentChanged: EventEmitter<string> = new EventEmitter();
 
@@ -139,6 +142,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     } else {
       this.toolbarItems.push(...this.defaultToolbarItems);
     }
+    // erContentSplitter.nativeElement.
     if (this.config  && this.config.paragraphSeparator) {
       this.paragraphSeparator = this.config.paragraphSeparator;
     }
@@ -149,8 +153,20 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     this.paragraphSeparator = 'div';
   }
 
+  onSplitterMouseDown(event) {
+    this.erContentSplitter.nativeElement.eraddEventListener('mousemove', this.onSplitterDrag);
+  }
+  onSplitterMouseUp(event) {
+    this.erContentSplitter.nativeElement.removeEventListener('mousemove', this.onSplitterDrag);
+  }
+
+  onSplitterDrag(e: MouseEvent) {
+    window.getSelection().removeAllRanges();
+    this.erContentEditor.nativeElement.style.width = (e.pageX - this.erContentSplitter.nativeElement.offsetWidth / 2) + 'px';
+  }
+
   writeValue(val: any): void {
-    this.erContent.nativeElement.innerHTML = val as string;
+    this.erContentEditor.nativeElement.innerHTML = val as string;
   }
   registerOnChange(fn: any): void {
     this._onChange = fn;
@@ -171,67 +187,67 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     switch (titem) {
       case EditorToolbarButtonEnum.bold:
         document.execCommand('bold', false);
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
 
       case EditorToolbarButtonEnum.italic:
         document.execCommand('italic', false);
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
 
       case EditorToolbarButtonEnum.underline:
         document.execCommand('underline', false);
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
 
       case EditorToolbarButtonEnum.strikethrough:
         document.execCommand('strikeThrough', false);
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.heading1:
         document.execCommand(commandFormatBlock, false, '<h1>');
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.heading2:
         document.execCommand(commandFormatBlock, false, '<h2>');
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.heading3:
         document.execCommand(commandFormatBlock, false, '<h3>');
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.paragraph:
         document.execCommand(commandFormatBlock, false, '<p>');
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.quote:
         document.execCommand(commandFormatBlock, false, '<blockquote>');
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.orderedlist:
         document.execCommand('insertOrderedList', false);
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.unorderedlist:
         document.execCommand('insertUnorderedList', false);
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.code:
         document.execCommand(commandFormatBlock, false, '<pre>');
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.horizontalline:
         document.execCommand('insertHorizontalRule', false);
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.link:
       case EditorToolbarButtonEnum.image:
         // TBD.
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
       case EditorToolbarButtonEnum.math:
         this.isDialogMathOpen = true;
-        this.erContent.nativeElement.focus();
+        this.erContentEditor.nativeElement.focus();
         break;
 
       default:
@@ -250,11 +266,11 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     const targetElement: HTMLDivElement = event.target as HTMLDivElement;
     if (targetElement && targetElement.firstChild && targetElement.firstChild.nodeType === 3) {
       document.execCommand(commandFormatBlock, false, `${this.paragraphSeparator}`);
-    } else if (this.erContent.nativeElement.innerHTML === '<br>') {
-      this.erContent.nativeElement.innerHTML = '';
+    } else if (this.erContentEditor.nativeElement.innerHTML === '<br>') {
+      this.erContentEditor.nativeElement.innerHTML = '';
     }
 
-    this.contentChanged.emit(this.erContent.nativeElement.innerText);
+    this.contentChanged.emit(this.erContentEditor.nativeElement.innerText);
   }
 
   // Math dialog
@@ -277,7 +293,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     if (inputelem.innerText) {
       const newelem: HTMLElement = document.createElement(this.paragraphSeparator);
       katex.render(inputelem.innerText, newelem);
-      this.erContent.nativeElement.appendChild(newelem);
+      this.erContentEditor.nativeElement.appendChild(newelem);
     }
 
     this.isDialogMathOpen = false;

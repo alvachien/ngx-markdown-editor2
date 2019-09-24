@@ -1,5 +1,5 @@
-<div class="acme" #aceditor>
-  <div class="acme-toolbar" #aceditor_toolbar>
+<div class="acme" #acme_wrapper>
+  <div class="acme-toolbar" #acme_toolbar>
     <button title="Bold" *ngIf="isToolbarItemExist('bold')" 
       (click)="onToolbarButtonClick($event, 'bold')"
       class="acme-toolbar-button"
@@ -80,9 +80,14 @@
       M
     </button>
   </div>
-  <div class="acme-content" #aceditor_content contenteditable="true" 
-    (keydown)="onContentKeyDown($event)"
-    (input)="onContentInput($event)">
+  <div class="acme-content" #acme_content>
+    <div class="acme-content-editor" #acme_content_editor contenteditable="true" 
+      (keydown)="onContentKeyDown($event)"
+      (input)="onContentInput($event)">
+    </div>
+    <div class="acme-content-splitter" (mousedown)="onSplitterMouseDown($event)" (mouseup)="onSplitterMouseUp($event)"></div>
+    <div class="acme-content-preview" #acme_content_preview>
+    </div>
   </div>
 </div>
 <div class="acme-dialog-math" [class.acme-dialog-open]="isDialogMathOpen" id="acme_math_dialog"> 

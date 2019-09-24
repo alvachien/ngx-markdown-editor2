@@ -13,14 +13,6 @@ $acme-content-padding: 10px !default;
   box-sizing: border-box;
 }
 
-.acme-content {
-  box-sizing: border-box;
-  height: $acme-content-height;
-  outline: 0;
-  overflow-y: auto;
-  padding: $acme-content-padding;
-}
-
 .acme-toolbar {
   background-color: $acme-toolbar-color;
   border-bottom: $acme-border-width $acme-border-style $acme-border-color;
@@ -38,6 +30,31 @@ $acme-content-padding: 10px !default;
 
 .acme-toolbar-button-selected {
   background-color: $acme-toolbar-button-selected-color;
+}
+
+.acme-content {
+  display: flex;
+  flex-direction: row;
+  min-height: 300px;
+}
+
+.acme-content-editor {
+  flex-grow: 1;
+  box-sizing: border-box;
+  height: $acme-content-height;
+  outline: 0;
+  overflow-y: auto;
+  padding: $acme-content-padding;
+}
+
+.acme-content-splitter {
+  padding: 6px;
+  cursor: col-resize;
+  background-color: silver;
+}
+
+.acme-content-preview {
+  flex-grow: 1;
 }
 
 .acme-dialog-math {
