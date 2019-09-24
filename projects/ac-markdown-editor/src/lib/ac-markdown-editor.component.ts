@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, OnDestroy, forwardRef, HostListener, Output, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NG_VALIDATORS, FormGroup, FormControl,
   Validator, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import * as marked from 'marked';
+import * as highlightjs from 'highlightjs';
 import * as katex from 'katex';
 
 // Constants for commands
@@ -55,7 +57,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
   @ViewChild('acme_toolbar', {static: true}) erToolbar: ElementRef;
   // @ViewChild('acme_content', {static: true}) erContent: ElementRef;
   @ViewChild('acme_content_editor', {static: true}) erContentEditor: ElementRef;
-  @ViewChild('acme_content_splitter', {static: true}) erContentSplitter: ElementRef;
+  // @ViewChild('acme_content_splitter', {static: true}) erContentSplitter: ElementRef;
   @ViewChild('acme_content_preview', {static: true}) erContentPreview: ElementRef;
   @Input() config: IEditorConfig;
   @Output() contentChanged: EventEmitter<string> = new EventEmitter();
@@ -142,28 +144,83 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     } else {
       this.toolbarItems.push(...this.defaultToolbarItems);
     }
-    // erContentSplitter.nativeElement.
-    if (this.config  && this.config.paragraphSeparator) {
-      this.paragraphSeparator = this.config.paragraphSeparator;
-    }
-    document.execCommand(commandParagraphSeparator, false, this.paragraphSeparator);
+
+    const markedRender = new marked.Renderer();
+    markedRender.code = (code: any, language: any) => {
+      if (language === 'seq' || language === 'sequence') {
+        return '<div class="sequence-diagram">' + code + '</div>';
+      } else if (language === 'flow') {
+        return '<div class="flowchart">' + code + '</div>';
+      } else if (language === 'math' || language === 'latex' || language === 'katex') {
+         return '<p class="katex">' + code + '</p>';
+      } else  {
+        const validLang = !!(language && highlightjs.getLanguage(language));
+        const highlighted = validLang ? highlightjs.highlight(language, code).value : code;
+        return `<pre style="padding: 0; border-radius: 0;"><code class="hljs ${language}">${highlighted}</code></pre>`;  
+      }
+    };
+    markedRender.table = (header: string, body: string) => {
+      return `<table class="table table-bordered">\n<thead>\n${header}</thead>\n<tbody>\n${body}</tbody>\n</table>\n`;
+    };
+    markedRender.listitem = (text: any, task: boolean, checked: boolean) => {
+      if (/^\s*\[[x ]\]\s*/.test(text) || text.startsWith('<input')) {
+        if (text.startsWith('<input')) {
+          text = text
+            .replace('<input disabled="" type="checkbox">', '<i class="fa fa-square-o"></i>')
+            .replace('<input checked="" disabled="" type="checkbox">', '<i class="fa fa-check-square"></i>');
+        } else {
+          text = text
+            .replace(/^\s*\[ \]\s*/, '<i class="fa fa-square-o"></i> ')
+            .replace(/^\s*\[x\]\s*/, '<i class="fa fa-check-square"></i> ');
+        }
+        return `<li>${text}</li>`;
+      } else {
+        return `<li>${text}</li>`;
+      }
+    };
+    markedRender.paragraph = (text: any) => {
+      var isTeXInline     = /\$\$(.*)\$\$/g.test(text);
+      var isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
+      var isTeXAddClass   = (isTeXLine)     ? " class=\"katex\"" : "";
+      // var isToC           = (settings.tocm) ? /^(\[TOC\]|\[TOCM\])$/.test(text) : /^\[TOC\]$/.test(text);
+      // var isToCMenu       = /^\[TOCM\]$/.test(text);
+
+      if (!isTeXLine && isTeXInline) {
+          text = text.replace(/(\$\$([^\$]*)\$\$)+/g, ($1, $2) => {
+              return '<span class="katex">' + $2.replace(/\$/g, '') + '</span>';
+          });
+      } else {
+        text = (isTeXLine) ? text.replace(/\$/g, "") : text;
+      }
+
+      return "<p" + isTeXAddClass + ">" + text + "</p>\n" ;
+      // var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
+      // return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
+      //                : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n" );
+    };
+    let markedjsOpt = {
+      renderer: markedRender,
+      highlight: (code: any) => hljs.highlightAuto(code).value
+    };
+
   }
+
   ngOnDestroy() {
     this.toolbarItems = [];
     this.paragraphSeparator = 'div';
   }
 
-  onSplitterMouseDown(event) {
-    this.erContentSplitter.nativeElement.eraddEventListener('mousemove', this.onSplitterDrag);
-  }
-  onSplitterMouseUp(event) {
-    this.erContentSplitter.nativeElement.removeEventListener('mousemove', this.onSplitterDrag);
-  }
+  // onSplitterMouseDown(event) {
+  //   this.erContentSplitter.nativeElement.eraddEventListener('mousemove', this.onSplitterDrag);
+  // }
+  // onSplitterMouseUp(event) {
+  //   this.erContentSplitter.nativeElement.removeEventListener('mousemove', this.onSplitterDrag);
+  // }
 
-  onSplitterDrag(e: MouseEvent) {
-    window.getSelection().removeAllRanges();
-    this.erContentEditor.nativeElement.style.width = (e.pageX - this.erContentSplitter.nativeElement.offsetWidth / 2) + 'px';
-  }
+  // onSplitterDrag(e: MouseEvent) {
+  //   window.getSelection().removeAllRanges();
+  //   this.erContentEditor.nativeElement.style.width = (e.pageX - this.erContentSplitter.nativeElement.offsetWidth / 2) + 'px';
+  // }
 
   writeValue(val: any): void {
     this.erContentEditor.nativeElement.innerHTML = val as string;
