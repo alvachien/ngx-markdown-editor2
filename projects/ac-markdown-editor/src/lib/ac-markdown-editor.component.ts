@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Input, OnDestroy, forwardRef,
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NG_VALIDATORS, FormGroup, FormControl,
   Validator, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import * as marked from 'marked';
-import * as highlightjs from 'highlightjs';
+import * as highlightjs from 'highlight.js';
 import * as katex from 'katex';
 
 // Constants for commands
@@ -90,6 +90,47 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
   toolbarItems: EditorToolbarButtonEnum[] = [];
   paragraphSeparator = 'div';
 
+  public get markdownValue(): any {
+    return this._markdownValue || '';
+  }
+  public set markdownValue(value: any) {
+    this._markdownValue = value;
+    this._onChange(value);
+
+    // if (this.preRender && this.preRender instanceof Function) {
+    //   value = this.preRender(value);
+    // }
+    if (value !== null && value !== undefined) {
+      if (this._renderMarkTimeout) {
+        clearTimeout(this._renderMarkTimeout);
+      }
+
+      this._renderMarkTimeout = setTimeout(() => {
+        let html = marked(value || '');
+        // let previewHtml = this._domSanitizer.bypassSecurityTrustHtml(html);
+        if (this.erContentPreview) {
+          this.erContentPreview.nativeElement.innerHTML = html;
+          let elem: HTMLDivElement = this.erContentPreview.nativeElement as HTMLDivElement;
+          let chlds = elem.getElementsByClassName('katex');
+          const orgcount = chlds.length;
+          let chldelems: any[] = [];
+          for(let i = 0; i < orgcount; i++) {
+            chldelems.push(chlds.item(i));
+            // chdelem.setAttribute('font-size', '1.6em');
+            // css("font-size", "1.6em");
+          }
+          chldelems.forEach((cel: any) => {
+            katex.render(cel.textContent, cel, {
+              throwOnError: false
+            });
+          });
+        }
+      }, 100);
+    }
+  }
+  private _markdownValue: any;
+  private _renderMarkTimeout: any;
+
   // @HostListener('change') onChange(): void {
   //   if (this._onChange) {
   //     this._onChange(this.erContent.nativeElement.innerHTML);
@@ -162,22 +203,22 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     markedRender.table = (header: string, body: string) => {
       return `<table class="table table-bordered">\n<thead>\n${header}</thead>\n<tbody>\n${body}</tbody>\n</table>\n`;
     };
-    markedRender.listitem = (text: any, task: boolean, checked: boolean) => {
-      if (/^\s*\[[x ]\]\s*/.test(text) || text.startsWith('<input')) {
-        if (text.startsWith('<input')) {
-          text = text
-            .replace('<input disabled="" type="checkbox">', '<i class="fa fa-square-o"></i>')
-            .replace('<input checked="" disabled="" type="checkbox">', '<i class="fa fa-check-square"></i>');
-        } else {
-          text = text
-            .replace(/^\s*\[ \]\s*/, '<i class="fa fa-square-o"></i> ')
-            .replace(/^\s*\[x\]\s*/, '<i class="fa fa-check-square"></i> ');
-        }
-        return `<li>${text}</li>`;
-      } else {
-        return `<li>${text}</li>`;
-      }
-    };
+    // markedRender.listitem = (text: any, task: boolean, checked: boolean) => {
+    //   if (/^\s*\[[x ]\]\s*/.test(text) || text.startsWith('<input')) {
+    //     if (text.startsWith('<input')) {
+    //       text = text
+    //         .replace('<input disabled="" type="checkbox">', '<i class="fa fa-square-o"></i>')
+    //         .replace('<input checked="" disabled="" type="checkbox">', '<i class="fa fa-check-square"></i>');
+    //     } else {
+    //       text = text
+    //         .replace(/^\s*\[ \]\s*/, '<i class="fa fa-square-o"></i> ')
+    //         .replace(/^\s*\[x\]\s*/, '<i class="fa fa-check-square"></i> ');
+    //     }
+    //     return `<li>${text}</li>`;
+    //   } else {
+    //     return `<li>${text}</li>`;
+    //   }
+    // };
     markedRender.paragraph = (text: any) => {
       var isTeXInline     = /\$\$(.*)\$\$/g.test(text);
       var isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
@@ -193,16 +234,15 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
         text = (isTeXLine) ? text.replace(/\$/g, "") : text;
       }
 
-      return "<p" + isTeXAddClass + ">" + text + "</p>\n" ;
+      return '<p'+ isTeXAddClass + '>' + text + '</p>\n';
       // var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
       // return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
       //                : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n" );
     };
     let markedjsOpt = {
       renderer: markedRender,
-      highlight: (code: any) => hljs.highlightAuto(code).value
+      highlight: (code: any) => highlightjs.highlightAuto(code).value
     };
-
   }
 
   ngOnDestroy() {
