@@ -18,6 +18,9 @@ export enum EditorToolbarButtonEnum {
   heading1 = 'heading1',
   heading2 = 'heading2',
   heading3 = 'heading3',
+  heading4 = 'heading4',
+  heading5 = 'heading5',
+  heading6 = 'heading6',
   paragraph = 'paragraph',
   quote = 'quote',
   orderedlist = 'orderedlist',
@@ -26,6 +29,8 @@ export enum EditorToolbarButtonEnum {
   horizontalline = 'horizontalline',
   link = 'link',
   image = 'image',
+  undo = 'undo',
+  redo = 'redo',
   math = 'math'
 }
 
@@ -77,6 +82,9 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     EditorToolbarButtonEnum.heading1,
     EditorToolbarButtonEnum.heading2,
     EditorToolbarButtonEnum.heading3,
+    EditorToolbarButtonEnum.heading4,
+    EditorToolbarButtonEnum.heading5,
+    EditorToolbarButtonEnum.heading6,
     EditorToolbarButtonEnum.paragraph,
     EditorToolbarButtonEnum.quote,
     EditorToolbarButtonEnum.orderedlist,
@@ -85,10 +93,13 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     EditorToolbarButtonEnum.horizontalline,
     EditorToolbarButtonEnum.link,
     EditorToolbarButtonEnum.image,
+    EditorToolbarButtonEnum.undo,
+    EditorToolbarButtonEnum.redo,
     EditorToolbarButtonEnum.math,
   ];
   toolbarItems: EditorToolbarButtonEnum[] = [];
   paragraphSeparator = 'div';
+  rangeSelection: Range;
 
   public get markdownValue(): any {
     return this._markdownValue || '';
@@ -106,7 +117,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
       }
 
       this._renderMarkTimeout = setTimeout(() => {
-        let html = marked(value || '');
+        let html = marked(value || '', this._markedOpt);
         // let previewHtml = this._domSanitizer.bypassSecurityTrustHtml(html);
         if (this.erContentPreview) {
           this.erContentPreview.nativeElement.innerHTML = html;
@@ -130,6 +141,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
   }
   private _markdownValue: any;
   private _renderMarkTimeout: any;
+  private _markedOpt: any;
 
   // @HostListener('change') onChange(): void {
   //   if (this._onChange) {
@@ -239,10 +251,11 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
       // return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
       //                : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n" );
     };
-    let markedjsOpt = {
+    this._markedOpt = {
       renderer: markedRender,
       highlight: (code: any) => highlightjs.highlightAuto(code).value
     };
+    // this._markedOpt = Object.assign({}, markedjsOpt, this.options.markedjsOpt);
   }
 
   ngOnDestroy() {
@@ -352,22 +365,28 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     }
   }
 
-  onContentKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && document.queryCommandValue(commandFormatBlock) === 'blockquote') {
-      setTimeout(() => {
-        document.execCommand(commandFormatBlock, false, `${this.paragraphSeparator}`);
-      }, 0);
+  ///
+  /// Editor's events
+  onContentEditorKeyUp(event: KeyboardEvent): void {
+    this.rangeSelection = window.getSelection().getRangeAt(0).cloneRange();
+  }
+  onContentEditorKeyPress(event: KeyboardEvent): void {
+    if (!event.metaKey && !event.ctrlKey && event.key === "Enter") {
+      insertText(vditor, "\n", "", true);
+      scrollCenter(this.element);
+      event.preventDefault();
     }
   }
-  onContentInput(event): void {
-    const targetElement: HTMLDivElement = event.target as HTMLDivElement;
-    if (targetElement && targetElement.firstChild && targetElement.firstChild.nodeType === 3) {
-      document.execCommand(commandFormatBlock, false, `${this.paragraphSeparator}`);
-    } else if (this.erContentEditor.nativeElement.innerHTML === '<br>') {
-      this.erContentEditor.nativeElement.innerHTML = '';
-    }
+  onContentEditorChange(event): void {
+    this.markdownValue = this.erContentEditor.nativeElement.value;
+    // const targetElement: HTMLDivElement = event.target as HTMLDivElement;
+    // if (targetElement && targetElement.firstChild && targetElement.firstChild.nodeType === 3) {
+    //   document.execCommand(commandFormatBlock, false, `${this.paragraphSeparator}`);
+    // } else if (this.erContentEditor.nativeElement.innerHTML === '<br>') {
+    //   this.erContentEditor.nativeElement.innerHTML = '';
+    // }
 
-    this.contentChanged.emit(this.erContentEditor.nativeElement.innerText);
+    // this.contentChanged.emit(this.erContentEditor.nativeElement.innerText);
   }
 
   // Math dialog

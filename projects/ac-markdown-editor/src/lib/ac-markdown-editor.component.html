@@ -81,10 +81,17 @@
     </button>
   </div>
   <div class="acme-content" #acme_content>
-    <div class="acme-content-editor" #acme_content_editor contenteditable="true" 
-      (keydown)="onContentKeyDown($event)"
-      (input)="onContentInput($event)">
-    </div>
+    <pre class="acme-content-editor" #acme_content_editor 
+      (keyup)="onContentEditorKeyUp($event)"
+      (keypress)="onContentEditorKeyPress($event)"
+      (mouseup)="onContentEditorMouseUp($event)"
+      (input)="onContentEditorKeyInput($event)"
+      (blur)="onContentEditorBlur($event)"
+      (scroll)="onContentEditorScroll($event)"
+      (drop)="onContentEditorDrop($event)"
+      (paste)="onContentEditorPaste($event)"
+      >
+    </pre>
     <div class="acme-content-preview" #acme_content_preview>
     </div>
   </div>
