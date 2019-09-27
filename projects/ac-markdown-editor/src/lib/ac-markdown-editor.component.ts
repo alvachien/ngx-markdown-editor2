@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, OnDestroy, forwardRef, HostListener, Output, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NG_VALIDATORS, FormGroup, FormControl,
   Validator, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { insertTextIntoElement, scrollToElementCenter } from 'actslib';
 import * as marked from 'marked';
 import * as highlightjs from 'highlight.js';
 import * as katex from 'katex';
@@ -371,11 +372,23 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     this.rangeSelection = window.getSelection().getRangeAt(0).cloneRange();
   }
   onContentEditorKeyPress(event: KeyboardEvent): void {
-    if (!event.metaKey && !event.ctrlKey && event.key === "Enter") {
-      insertText(vditor, "\n", "", true);
-      scrollCenter(this.element);
+    if (!event.metaKey && !event.ctrlKey && event.key === 'Enter') {
+      insertTextIntoElement(this.erContentEditor.nativeElement, '\n', '');
+      // TBD: Add to undo
+
+      scrollToElementCenter(this.erContentEditor.nativeElement);
       event.preventDefault();
     }
+  }
+  onContentEditorKeyInput(event): void {
+    this.refreshControls();
+
+    // 选中多行后输入任意字符，br 后无 \n
+    this.erContentEditor.nativeElement.querySelectorAll('br').forEach((br) => {
+        if (!br.nextElementSibling) {
+          br.insertAdjacentHTML('afterend', '<span style="display: none">\n</span>');
+        }
+    });
   }
   onContentEditorChange(event): void {
     this.markdownValue = this.erContentEditor.nativeElement.value;
@@ -387,6 +400,24 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     // }
 
     // this.contentChanged.emit(this.erContentEditor.nativeElement.innerText);
+  }
+  onContentEditorScroll(event): void {
+    const textScrollTop = this.erContentEditor.nativeElement.scrollTop;
+    const textHeight = this.erContentEditor.nativeElement.clientHeight;
+    const textScrollHeight = this.erContentEditor.nativeElement.scrollHeight
+      - parseFloat(this.erContentEditor.nativeElement.style.paddingBottom);
+
+    if ((textScrollTop / textHeight > 0.5)) {
+      this.erContentPreview.nativeElement.scrollTop = (textScrollTop + textHeight) *
+        this.erContentPreview.nativeElement.scrollHeight / textScrollHeight - textHeight;
+    } else {
+      this.erContentPreview.nativeElement.scrollTop = textScrollTop *
+        this.erContentPreview.nativeElement.scrollHeight / textScrollHeight;
+    }
+  }
+
+  refreshControls() {
+
   }
 
   // Math dialog
