@@ -38,9 +38,11 @@ export enum EditorToolbarButtonEnum {
 }
 
 // Config for editor
-export interface IEditorConfig {
+export interface IACMEditorConfig {
   toolbarItems?: EditorToolbarButtonEnum[];
-  paragraphSeparator?: string;
+  height?: number;
+  width?: number;
+  maxLength?: number;
 }
 
 @Component({
@@ -67,7 +69,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
   @ViewChild('acme_content_editor', { static: true }) erContentEditor: ElementRef;
   // @ViewChild('acme_content_splitter', {static: true}) erContentSplitter: ElementRef;
   @ViewChild('acme_content_preview', { static: true }) erContentPreview: ElementRef;
-  @Input() config: IEditorConfig;
+  @Input() config: IACMEditorConfig;
   @Output() contentChanged: EventEmitter<string> = new EventEmitter();
 
   isDialogMathOpen = false;
@@ -119,14 +121,13 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
       }
 
       this._renderMarkTimeout = setTimeout(() => {
-        let html = marked(value || '', this._markedOpt);
+        const html = marked(value || '', this._markedOpt);
         // let previewHtml = this._domSanitizer.bypassSecurityTrustHtml(html);
         if (this.erContentPreview) {
           this.erContentPreview.nativeElement.innerHTML = html;
-          let elem: HTMLDivElement = this.erContentPreview.nativeElement as HTMLDivElement;
-          let chlds = elem.getElementsByClassName('katex');
+          const chlds = this.erContentPreview.nativeElement.getElementsByClassName('katex');
           const orgcount = chlds.length;
-          let chldelems: any[] = [];
+          const chldelems: any[] = [];
           for (let i = 0; i < orgcount; i++) {
             chldelems.push(chlds.item(i));
             // chdelem.setAttribute('font-size', '1.6em');
@@ -141,8 +142,11 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
       }, 100);
     }
   }
+  // tslint:disable-next-line:variable-name
   private _markdownValue: any;
+  // tslint:disable-next-line:variable-name
   private _renderMarkTimeout: any;
+  // tslint:disable-next-line:variable-name
   private _markedOpt: any;
 
   // @HostListener('change') onChange(): void {
@@ -200,6 +204,16 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
       this.toolbarItems.push(...this.defaultToolbarItems);
     }
 
+    // Width and height
+    if (this.config.width) {
+      this.erContentEditor.nativeElement.style.width = this.config.width + 'px';
+      this.erContentPreview.nativeElement.style.width = this.config.width + 'px';
+    }
+    if (this.config.height) {
+      this.erContentEditor.nativeElement.style.height = this.config.height + 'px';
+      this.erContentPreview.nativeElement.style.height = this.config.height + 'px';
+    }
+
     const markedRender = new marked.Renderer();
     markedRender.code = (code: any, language: any) => {
       if (language === 'seq' || language === 'sequence') {
@@ -234,9 +248,9 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     //   }
     // };
     markedRender.paragraph = (text: any) => {
-      var isTeXInline = /\$\$(.*)\$\$/g.test(text);
-      var isTeXLine = /^\$\$(.*)\$\$$/.test(text);
-      var isTeXAddClass = (isTeXLine) ? " class=\"katex\"" : "";
+      const isTeXInline = /\$\$(.*)\$\$/g.test(text);
+      const isTeXLine = /^\$\$(.*)\$\$$/.test(text);
+      const isTeXAddClass = (isTeXLine) ? ' class="katex"' : '';
       // var isToC           = (settings.tocm) ? /^(\[TOC\]|\[TOCM\])$/.test(text) : /^\[TOC\]$/.test(text);
       // var isToCMenu       = /^\[TOCM\]$/.test(text);
 
@@ -245,12 +259,13 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
           return '<span class="katex">' + $2.replace(/\$/g, '') + '</span>';
         });
       } else {
-        text = (isTeXLine) ? text.replace(/\$/g, "") : text;
+        text = (isTeXLine) ? text.replace(/\$/g, '') : text;
       }
 
       return '<p' + isTeXAddClass + '>' + text + '</p>\n';
       // var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
       // return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
+      // tslint:disable-next-line:max-line-length
       //                : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n" );
     };
     this._markedOpt = {
@@ -430,7 +445,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
 
   refreshControls() {
     // Update preview
-    let markdownText: string = readElementText(this.erContentEditor.nativeElement);
+    const markdownText: string = readElementText(this.erContentEditor.nativeElement);
     if (markdownText.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '') === '') {
       this.erContentEditor.nativeElement.children[0].innerHTML = '';
       return;
@@ -444,7 +459,6 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     // const html = await md2htmlByVditor(markdownText, vditor);
     // this.element.children[0].innerHTML = html;
     // this.afterRender(vditor, renderStartTime);
-
   }
 
   // Math dialog

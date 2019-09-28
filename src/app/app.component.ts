@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { EditorToolbarButtonEnum, IEditorConfig } from '../../projects/ac-markdown-editor/src/public-api';
+import { EditorToolbarButtonEnum, IACMEditorConfig } from '../../projects/ac-markdown-editor/src/public-api';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +10,7 @@ export class AppComponent {
   title = 'ngx-markdown-editor2';
   inputtedContent: string;
   contentFromChangedEvent: string;
-  editorConfig: IEditorConfig = {
+  editorConfig: IACMEditorConfig = {
     toolbarItems: [
       EditorToolbarButtonEnum.bold,
       EditorToolbarButtonEnum.italic,
@@ -26,7 +26,7 @@ export class AppComponent {
       EditorToolbarButtonEnum.code,
       EditorToolbarButtonEnum.math,
     ],
-    paragraphSeparator: 'div'
+    height: 300,
   };
 
   constructor() {
