@@ -387,23 +387,22 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     this.rangeSelection = window.getSelection().getRangeAt(0).cloneRange();
   }
   onContentEditorKeyPress(event: KeyboardEvent): void {
-    if (!event.metaKey && !event.ctrlKey && event.key === 'Enter') {
-      insertTextIntoElement(this.erContentEditor.nativeElement, '\n', '');
-      // TBD: Add to undo
+    // if (!event.metaKey && !event.ctrlKey && event.key === 'Enter') {
+    //   insertTextIntoElement(this.erContentEditor.nativeElement, '\n', '');
+    //   // TBD: Add to undo
 
-      scrollToElementCenter(this.erContentEditor.nativeElement);
-      event.preventDefault();
-    }
+    //   scrollToElementCenter(this.erContentEditor.nativeElement);
+    //   event.preventDefault();
+    // }
   }
   onContentEditorKeyInput(event): void {
     this.refreshControls();
 
-    // 选中多行后输入任意字符，br 后无 \n
-    this.erContentEditor.nativeElement.querySelectorAll('br').forEach((br) => {
-      if (!br.nextElementSibling) {
-        br.insertAdjacentHTML('afterend', '<span style="display: none">\n</span>');
-      }
-    });
+    // this.erContentEditor.nativeElement.querySelectorAll('br').forEach((br) => {
+    //   if (!br.nextElementSibling) {
+    //     br.insertAdjacentHTML('afterend', '<span style="display: none">\n</span>');
+    //   }
+    // });
   }
   // onContentEditorChange(event): void {
   //   this.markdownValue = this.erContentEditor.nativeElement.value;
@@ -420,7 +419,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     const textScrollTop = this.erContentEditor.nativeElement.scrollTop;
     const textHeight = this.erContentEditor.nativeElement.clientHeight;
     const textScrollHeight = this.erContentEditor.nativeElement.scrollHeight
-      - parseFloat(this.erContentEditor.nativeElement.style.paddingBottom);
+      - (this.erContentEditor.nativeElement.style.paddingBottom ? parseFloat(this.erContentEditor.nativeElement.style.paddingBottom) : 0);
 
     if ((textScrollTop / textHeight > 0.5)) {
       this.erContentPreview.nativeElement.scrollTop = (textScrollTop + textHeight) *
@@ -445,13 +444,15 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
 
   refreshControls() {
     // Update preview
-    const markdownText: string = readElementText(this.erContentEditor.nativeElement);
-    if (markdownText.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '') === '') {
-      this.erContentEditor.nativeElement.children[0].innerHTML = '';
-      return;
-    }
+    // const markdownText: string = readElementText(this.erContentEditor.nativeElement);
+    // if (markdownText.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '') === '') {
+    //   this.erContentEditor.nativeElement.children[0].innerHTML = '';
+    //   return;
+    // }
 
-    this.markdownValue = markdownText;
+    // this.markdownValue = markdownText;
+
+    this.markdownValue = this.erContentEditor.nativeElement.innerText;
 
     // // clearTimeout(this.mdTimeoutId);
     // const renderStartTime = new Date().getTime();

@@ -41,10 +41,9 @@ $acme-content-padding: 10px !default;
 .acme-content-editor {
   flex-grow: 1;
   box-sizing: border-box;
-  height: $acme-content-height;
+  height: 100%;
   outline: 0;
   overflow-y: auto;
-  padding: $acme-content-padding;
 }
 
 .acme-content-splitter {
@@ -55,6 +54,10 @@ $acme-content-padding: 10px !default;
 
 .acme-content-preview {
   flex-grow: 1;
+  box-sizing: border-box;
+  height: 100%;
+  outline: 0;
+  overflow-y: auto;
 }
 
 .acme-dialog-math {
