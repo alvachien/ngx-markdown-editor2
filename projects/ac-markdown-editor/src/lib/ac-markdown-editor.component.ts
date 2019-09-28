@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, OnDestroy, forwardRef, HostListener, Output, EventEmitter } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, NG_VALIDATORS, FormGroup, FormControl,
-  Validator, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { insertTextIntoElement, scrollToElementCenter } from 'actslib';
+import {
+  ControlValueAccessor, NG_VALUE_ACCESSOR, NG_VALIDATORS, FormGroup, FormControl,
+  Validator, Validators, AbstractControl, ValidationErrors
+} from '@angular/forms';
+import { insertTextIntoElement, scrollToElementCenter, readElementText, } from 'actslib';
 import * as marked from 'marked';
 import * as highlightjs from 'highlight.js';
 import * as katex from 'katex';
@@ -59,12 +61,12 @@ export interface IEditorConfig {
   ],
 })
 export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValueAccessor, Validator {
-  @ViewChild('acme_wrapper', {static: true}) erWrapper: ElementRef;
-  @ViewChild('acme_toolbar', {static: true}) erToolbar: ElementRef;
+  @ViewChild('acme_wrapper', { static: true }) erWrapper: ElementRef;
+  @ViewChild('acme_toolbar', { static: true }) erToolbar: ElementRef;
   // @ViewChild('acme_content', {static: true}) erContent: ElementRef;
-  @ViewChild('acme_content_editor', {static: true}) erContentEditor: ElementRef;
+  @ViewChild('acme_content_editor', { static: true }) erContentEditor: ElementRef;
   // @ViewChild('acme_content_splitter', {static: true}) erContentSplitter: ElementRef;
-  @ViewChild('acme_content_preview', {static: true}) erContentPreview: ElementRef;
+  @ViewChild('acme_content_preview', { static: true }) erContentPreview: ElementRef;
   @Input() config: IEditorConfig;
   @Output() contentChanged: EventEmitter<string> = new EventEmitter();
 
@@ -99,7 +101,6 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     EditorToolbarButtonEnum.math,
   ];
   toolbarItems: EditorToolbarButtonEnum[] = [];
-  paragraphSeparator = 'div';
   rangeSelection: Range;
 
   public get markdownValue(): any {
@@ -126,7 +127,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
           let chlds = elem.getElementsByClassName('katex');
           const orgcount = chlds.length;
           let chldelems: any[] = [];
-          for(let i = 0; i < orgcount; i++) {
+          for (let i = 0; i < orgcount; i++) {
             chldelems.push(chlds.item(i));
             // chdelem.setAttribute('font-size', '1.6em');
             // css("font-size", "1.6em");
@@ -206,11 +207,11 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
       } else if (language === 'flow') {
         return '<div class="flowchart">' + code + '</div>';
       } else if (language === 'math' || language === 'latex' || language === 'katex') {
-         return '<p class="katex">' + code + '</p>';
-      } else  {
+        return '<p class="katex">' + code + '</p>';
+      } else {
         const validLang = !!(language && highlightjs.getLanguage(language));
         const highlighted = validLang ? highlightjs.highlight(language, code).value : code;
-        return `<pre style="padding: 0; border-radius: 0;"><code class="hljs ${language}">${highlighted}</code></pre>`;  
+        return `<pre style="padding: 0; border-radius: 0;"><code class="hljs ${language}">${highlighted}</code></pre>`;
       }
     };
     markedRender.table = (header: string, body: string) => {
@@ -233,21 +234,21 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     //   }
     // };
     markedRender.paragraph = (text: any) => {
-      var isTeXInline     = /\$\$(.*)\$\$/g.test(text);
-      var isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
-      var isTeXAddClass   = (isTeXLine)     ? " class=\"katex\"" : "";
+      var isTeXInline = /\$\$(.*)\$\$/g.test(text);
+      var isTeXLine = /^\$\$(.*)\$\$$/.test(text);
+      var isTeXAddClass = (isTeXLine) ? " class=\"katex\"" : "";
       // var isToC           = (settings.tocm) ? /^(\[TOC\]|\[TOCM\])$/.test(text) : /^\[TOC\]$/.test(text);
       // var isToCMenu       = /^\[TOCM\]$/.test(text);
 
       if (!isTeXLine && isTeXInline) {
-          text = text.replace(/(\$\$([^\$]*)\$\$)+/g, ($1, $2) => {
-              return '<span class="katex">' + $2.replace(/\$/g, '') + '</span>';
-          });
+        text = text.replace(/(\$\$([^\$]*)\$\$)+/g, ($1, $2) => {
+          return '<span class="katex">' + $2.replace(/\$/g, '') + '</span>';
+        });
       } else {
         text = (isTeXLine) ? text.replace(/\$/g, "") : text;
       }
 
-      return '<p'+ isTeXAddClass + '>' + text + '</p>\n';
+      return '<p' + isTeXAddClass + '>' + text + '</p>\n';
       // var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
       // return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
       //                : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n" );
@@ -261,7 +262,6 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
 
   ngOnDestroy() {
     this.toolbarItems = [];
-    this.paragraphSeparator = 'div';
   }
 
   // onSplitterMouseDown(event) {
@@ -385,22 +385,22 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
 
     // 选中多行后输入任意字符，br 后无 \n
     this.erContentEditor.nativeElement.querySelectorAll('br').forEach((br) => {
-        if (!br.nextElementSibling) {
-          br.insertAdjacentHTML('afterend', '<span style="display: none">\n</span>');
-        }
+      if (!br.nextElementSibling) {
+        br.insertAdjacentHTML('afterend', '<span style="display: none">\n</span>');
+      }
     });
   }
-  onContentEditorChange(event): void {
-    this.markdownValue = this.erContentEditor.nativeElement.value;
-    // const targetElement: HTMLDivElement = event.target as HTMLDivElement;
-    // if (targetElement && targetElement.firstChild && targetElement.firstChild.nodeType === 3) {
-    //   document.execCommand(commandFormatBlock, false, `${this.paragraphSeparator}`);
-    // } else if (this.erContentEditor.nativeElement.innerHTML === '<br>') {
-    //   this.erContentEditor.nativeElement.innerHTML = '';
-    // }
+  // onContentEditorChange(event): void {
+  //   this.markdownValue = this.erContentEditor.nativeElement.value;
+  //   // const targetElement: HTMLDivElement = event.target as HTMLDivElement;
+  //   // if (targetElement && targetElement.firstChild && targetElement.firstChild.nodeType === 3) {
+  //   //   document.execCommand(commandFormatBlock, false, `${this.paragraphSeparator}`);
+  //   // } else if (this.erContentEditor.nativeElement.innerHTML === '<br>') {
+  //   //   this.erContentEditor.nativeElement.innerHTML = '';
+  //   // }
 
-    // this.contentChanged.emit(this.erContentEditor.nativeElement.innerText);
-  }
+  //   // this.contentChanged.emit(this.erContentEditor.nativeElement.innerText);
+  // }
   onContentEditorScroll(event): void {
     const textScrollTop = this.erContentEditor.nativeElement.scrollTop;
     const textHeight = this.erContentEditor.nativeElement.clientHeight;
@@ -415,8 +415,35 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
         this.erContentPreview.nativeElement.scrollHeight / textScrollHeight;
     }
   }
+  onContentEditorBlur(event): void {
+    // TBD.
+  }
+  onContentEditorMouseUp(event): void {
+    // TBD.
+  }
+  onContentEditorDrop(event): void {
+    // TBD
+  }
+  onContentEditorPaste(event): void {
+    // TBD.
+  }
 
   refreshControls() {
+    // Update preview
+    let markdownText: string = readElementText(this.erContentEditor.nativeElement);
+    if (markdownText.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '') === '') {
+      this.erContentEditor.nativeElement.children[0].innerHTML = '';
+      return;
+    }
+
+    this.markdownValue = markdownText;
+
+    // // clearTimeout(this.mdTimeoutId);
+    // const renderStartTime = new Date().getTime();
+    // // const markdownText = getText(vditor.editor.element);
+    // const html = await md2htmlByVditor(markdownText, vditor);
+    // this.element.children[0].innerHTML = html;
+    // this.afterRender(vditor, renderStartTime);
 
   }
 
@@ -438,7 +465,7 @@ export class AcMarkdownEditorComponent implements OnInit, OnDestroy, ControlValu
     const dialogelem: HTMLElement = document.getElementById('acme_math_dialog');
     const inputelem = dialogelem.getElementsByClassName('acme_math_input')[0] as HTMLDivElement;
     if (inputelem.innerText) {
-      const newelem: HTMLElement = document.createElement(this.paragraphSeparator);
+      const newelem: HTMLElement = document.createElement('div');
       katex.render(inputelem.innerText, newelem);
       this.erContentEditor.nativeElement.appendChild(newelem);
     }

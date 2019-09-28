@@ -82,6 +82,7 @@
   </div>
   <div class="acme-content" #acme_content>
     <pre class="acme-content-editor" #acme_content_editor 
+      contenteditable="true"
       (keyup)="onContentEditorKeyUp($event)"
       (keypress)="onContentEditorKeyPress($event)"
       (mouseup)="onContentEditorMouseUp($event)"
